@@ -1,0 +1,23 @@
+image: docker:stable
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_REPOSITORY: $CI_REGISTRY/archomeda/docker-volume-backup
+
+before_script:
+  - docker version
+  - docker info
+  - docker login -u gitlab-ci-token -p $CI_REGISTRY_USER $CI_REGISTRY
+
+stages:
+  - build
+
+build:
+  stage: build
+  only:
+    - master
+  script:
+    - docker build -t $DOCKER_REPOSITORY:latest -f ./Dockerfile .
+    - docker push $DOCKER_REPOSITORY:latest
