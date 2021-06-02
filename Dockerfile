@@ -14,13 +14,8 @@ RUN \
   rm -rf ./aws awscliv2.zip && \
   aws --version
 
-# Install Azure CLI (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt)
-RUN \
-  curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg && \
-  echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list > /dev/null && \
-  apt-get update && \
-  apt-get install -y --no-install-recommends azure-cli && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install Azure CLI (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=script)
+RUN curl -L https://aka.ms/InstallAzureCli | bash
 
 # Install docker CLI
 RUN \

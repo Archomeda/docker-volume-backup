@@ -4,12 +4,9 @@ services:
   - docker:dind
 
 variables:
-  DOCKER_REPOSITORY: $CI_REGISTRY/archomeda/docker-volume-backup
-
-before_script:
-  - docker version
-  - docker info
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  BUILDX_VERSION: v0.5.1
+  IMAGE_LATEST: $CI_REGISTRY_IMAGE:latest
+  PLATFORMS: linux/amd64,linux/arm64
 
 stages:
   - build
@@ -18,6 +15,15 @@ build:
   stage: build
   only:
     - master
+  before_script:
+    - docker version
+    - docker info
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - mkdir -vp ~/.docker/cli-plugins/ ~/dockercache
+    - wget "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-amd64" -O ~/.docker/cli-plugins/docker-buildx
+    - chmod a+x ~/.docker/cli-plugins/docker-buildx
+    - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   script:
-    - docker build -t $DOCKER_REPOSITORY:latest .
-    - docker push $DOCKER_REPOSITORY:latest
+    - docker buildx create --use
+    - docker buildx inspect --bootstrap
+    - docker buildx build --platform $PLATFORMS --push -t $IMAGE_LATEST .
