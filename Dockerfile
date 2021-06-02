@@ -3,8 +3,9 @@ FROM ubuntu:18.04
 # Install required base packages
 RUN \
   apt-get update && \
-  apt-get install -y --no-install-recommends curl cron ca-certificates unzip apt-transport-https gnupg2 software-properties-common jq python3-pip python3-setuptools && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+  apt-get install -y --no-install-recommends curl cron ca-certificates unzip apt-transport-https gnupg2 software-properties-common jq python3-pip && \
+  apt-get clean && rm -rf /var/lib/apt/lists/* && \
+  pip3 install --upgrade pip setuptools
 
 # Install awscliv2 https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
 RUN \
