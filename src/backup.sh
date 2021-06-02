@@ -104,6 +104,22 @@ if [ ! -z "$AWS_GLACIER_VAULT_NAME" ]; then
   echo "Upload finished"
   TIME_UPLOADED="$(date +%s.%N)"
 fi
+if [ ! -z "$AZURE_STORAGE_CONNECTION_STRING" ] && [ ! -z "$AZURE_STORAGE_CONTAINER_NAME" ]; then
+  info "Uploading backup to Azure"
+  echo "Will upload to container \"$AZURE_STORAGE_CONTAINER_NAME\""
+  TIME_UPLOAD="$(date +%s.%N)"
+  az storage blob upload --file "$BACKUP_FILENAME" --container-name "$AZURE_STORAGE_CONTAINER_NAME" --name "$BACKUP_FILENAME" --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
+  echo "Upload finished"
+  az storage blob snapshot --container-name "$AZURE_STORAGE_CONTAINER_NAME" --name "$BACKUP_FILENAME" --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
+  echo "Snapshot finished"
+  timestamp=`date -d "$AZURE_STORAGE_SNAPSHOT_RETENTION_DAYS days ago" '+%s'`
+  az storage blob list --container-name "$AZURE_STORAGE_CONTAINER_NAME" --include s --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
+    | jq -j --arg timestamp "$timestamp" '.[].snapshot | select(. != null) | select(match("^(.+)\\..+Z$").captures[0].string | (. + "Z") | fromdateiso8601 < ($timestamp | tonumber)) | (. + "\u0000")' \
+    | xargs -0 -n1 az storage blob delete --container-name "$AZURE_STORAGE_CONTAINER_NAME" --name "$BACKUP_FILENAME" --connection-string "$AZURE_STORAGE_CONNECTION_STRING" --snapshot 
+  echo "Deleting older snapshots finished"
+  echo "If az returned an error about expecting an argument, it means that no snapshots have been matched; this can be ignored"
+  TIME_UPLOADED="$(date +%s.%N)"
+fi
 
 if [ -d "$BACKUP_ARCHIVE" ]; then
   info "Archiving backup"
