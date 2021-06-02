@@ -14,8 +14,8 @@ RUN \
   rm -rf ./aws awscliv2.zip && \
   aws --version
 
-# Install Azure CLI (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=script)
-RUN curl -L https://aka.ms/InstallAzureCli | bash
+# Install Azure CLI
+RUN pip install azure-cli
 
 # Install docker CLI
 RUN \
