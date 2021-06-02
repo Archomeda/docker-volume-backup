@@ -15,7 +15,7 @@ RUN \
   aws --version
 
 # Install Azure CLI
-RUN pip install azure-cli
+RUN pip3 install azure-cli
 
 # Install docker CLI
 RUN \
