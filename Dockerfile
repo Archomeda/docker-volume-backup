@@ -41,7 +41,7 @@ RUN \
   apt-get install -y --no-install-recommends python3-pip make && \
   pip3 install --upgrade pip setuptools && \
   pip3 install azure-cli && \
-  apt-get remove make && \
+  apt-get remove -y make && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install docker CLI
