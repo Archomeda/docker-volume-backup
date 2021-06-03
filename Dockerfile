@@ -41,7 +41,7 @@ RUN \
 RUN pip3 install azure-cli
 
 # Install docker CLI
-COPY --from=build /files/docker.list /etc/apit/sources.list.d/docker.list
+COPY --from=build /files/docker.list /etc/apt/sources.list.d/docker.list
 RUN \
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
   apt-get update && \
