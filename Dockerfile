@@ -5,7 +5,6 @@ RUN \
   curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
   unzip -q awscliv2.zip && \
   rm awscliv2.zip
-RUN echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]" | tee docker.list > /dev/null
 
 
 FROM --platform=$BUILDPLATFORM alpine AS build-arm64
@@ -15,13 +14,13 @@ RUN \
   curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip" && \
   unzip -q awscliv2.zip && \
   rm awscliv2.zip
-RUN echo "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg]" | tee docker.list > /dev/null
 
 
 FROM build-${TARGETARCH} AS build
 
 
 FROM ubuntu:18.04
+ARG TARGETARCH
 
 # Install required base packages
 RUN \
@@ -41,10 +40,9 @@ RUN \
 RUN pip3 install azure-cli
 
 # Install docker CLI
-COPY --from=build /files/docker.list /etc/apt/sources.list.d/docker.list
 RUN \
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
-  echo " https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee -a /etc/apt/sources.list.d/docker.list > /dev/null && \
+  echo "deb [arch=${TARGETARCH} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
   apt-get update && \
   apt-get install -y --no-install-recommends docker-ce-cli && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
