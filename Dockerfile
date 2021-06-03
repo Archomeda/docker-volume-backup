@@ -25,9 +25,8 @@ ARG TARGETARCH
 # Install required base packages
 RUN \
   apt-get update && \
-  apt-get install -y --no-install-recommends curl cron ca-certificates apt-transport-https gnupg2 software-properties-common jq python3-pip && \
-  apt-get clean && rm -rf /var/lib/apt/lists/* && \
-  pip3 install --upgrade pip setuptools
+  apt-get install -y --no-install-recommends curl cron ca-certificates apt-transport-https gnupg2 software-properties-common jq && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install awscliv2 https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
 COPY --from=build /files/aws ./aws
@@ -37,7 +36,13 @@ RUN \
   aws --version
 
 # Install Azure CLI
-RUN pip3 install azure-cli
+RUN \
+  apt-get update && \
+  apt-get install -y --no-install-recommends python3-pip make && \
+  pip3 install --upgrade pip setuptools && \
+  pip3 install azure-cli && \
+  apt-get remove make && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install docker CLI
 RUN \
