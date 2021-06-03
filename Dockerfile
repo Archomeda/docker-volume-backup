@@ -38,10 +38,10 @@ RUN \
 # Install Azure CLI
 RUN \
   apt-get update && \
-  apt-get install -y --no-install-recommends python3-pip make && \
+  apt-get install -y --no-install-recommends python3-dev python3-pip gcc libffi-dev && \
   pip3 install --upgrade pip setuptools && \
   pip3 install azure-cli && \
-  apt-get remove -y make && \
+  apt-get autoremove -y python3-dev gcc libffi-dev && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install docker CLI
